@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+    <script src="https://arnonearth.github.io/googlemapsapi/liquidFillGauge.js" language="JavaScript"></script>
+    <style>
+        .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; overflow:hidden; }
+    </style>
+</head>
+<body>
+<svg id="fillgauge1" width="70%" height="70%"></svg>
+<script language="JavaScript">
+
+    var config1 = liquidFillGaugeDefaultSettings();
+    config1.circleColor = "#FF7777";
+    config1.textColor = "#FF4444";
+    config1.waveTextColor = "#FFAAAA";
+    config1.waveColor = "#FFDDDD";
+    config1.circleThickness = 0.2;
+    config1.textVertPosition = 0.2;
+    config1.waveAnimateTime = 10000;
+    config1.waveCount = 200;
+    config1.waveOffset = 5000;
+    config1.waveHeight = 10000;
+    config1.waveAnimate = true;
+    var gauge1 = loadLiquidFillGauge("fillgauge1", 34398);
+
+</script>
+</body>
+</html>
