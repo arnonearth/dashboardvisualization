@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>G-map</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+
+	 #info-box {
+        background-color: white;
+        border: 1px solid black;
+        bottom: 30px;
+        height: 20px;
+        padding: 10px;
+        position: absolute;
+        left: 30px;
+      }
+
+	 #legend-container {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        padding: 10px;
+        margin: 10px;
+        border: 3px solid #000;
+      }
+      #legend-container h3 {
+        margin-top: 0;
+      }
+      .legend-color-box {
+      	height:20px;
+		width:20px;
+		border-radius:3px;
+		float:left;
+		border:1px solid black;
+		margin-right:6px;
+      }
+
+
+    </style>
+  </head>
+  <body>
+  <div id="map"></div>
+  <div id="info-box"></div>
+
+    <script>
+
+	var map;
+
+	var index = [];
+
+	for (var x in consumptiondata) {
+		index.push(x);
+	}
+
+
+      function initMap() {
+          map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 16,
+          center: {lat: 14.079358, lng: 100.611366},
+		disableDefaultUI: true
+        });
+
+		infoWindow = new google.maps.InfoWindow({
+		      content: ""
+		  	});
+
+	     map.data.loadGeoJson('https://arnonearth.github.io/googlemapsapi/accomcluster.json?'); //Where json file hosted
+
+		map.data.setStyle(function(feature) {
+ 			return {
+				fillColor: getColor(feature.getProperty('waterconsumption')),
+ 				fillOpacity: 0.8,
+ 				strokeColor: '#b3b3b3',
+ 				strokeWeight: 1,
+ 				zIndex: 1
+ 				};
+			});
+
+
+
+		function getColor(waterconsumption) {
+			return waterconsumption >= 3800 ? '#034B8C' :
+ 			waterconsumption > 3300 ? '#1E6CB2' :
+ 			waterconsumption > 2500 ? '#4593D9' :
+ 			waterconsumption > 1300 ? '#78BFFF' :
+ 			waterconsumption > 1000 ? '#9ED1FF' :
+			'#C4E3FF';
+			};
+
+		function getWater(index) {
+			if(index == 0) {
+				return "> 3,800 m\u00B3"; }
+ 			if(index == 1) {
+				return "> 3,300 m\u00B3"; }
+ 			if(index == 2) {
+				return "> 2,500 m\u00B3"; }
+ 			if(index == 3) {
+				return "> 1,300 m\u00B3"; }
+ 			if(index == 4) {
+				return "> 500 m\u00B3"; }
+			else { return "< 500 m\u00B3"; }
+			};
+
+		var colorValues = [
+
+				"#034B8C", //1
+				"#1E6CB2", //2
+				"#4593D9", //3
+				"#78BFFF", //4
+				"#9ED1FF", //5
+				"#C4E3FF" //6
+			]
+
+		map.data.addListener('mouseover', function(event) {
+  			document.getElementById('info-box').textContent =
+      		event.feature.getProperty('waterconsumption')+" m\u00B3";
+		});
+
+		map.data.addListener('click', function(event) {
+
+        if(event.feature.getProperty('male') !== null){
+				infoWindow.setContent('<div style="line-height:1.35;overflow:hidden;white-space:nowrap;">' +
+				event.feature.getProperty('description') +"<br/>Water Consumption = " + event.feature.getProperty('waterconsumption') + " m\u00B3"
+				+ "<br/>Number of Males = " + event.feature.getProperty('male') + "<br/>Number of Females = " + event.feature.getProperty('female') + "</div>" );
+        };
+        if(event.feature.getProperty('male') == null){
+          infoWindow.setContent('<div style="line-height:1.35;overflow:hidden;white-space:nowrap;">' +
+  				event.feature.getProperty('description')+"</br>Water Consumption = " + event.feature.getProperty('waterconsumption') + " m\u00B3" + "</div>")
+        };
+				var anchor = new google.maps.MVCObject();
+				anchor.set("position",event.latLng);
+				infoWindow.open(map,anchor);
+		});
+		map.data.addListener('mouseover', function(event) {
+ 			map.data.overrideStyle(event.feature, {
+			fillColor: 'green',
+			strokeOpacity: 0.7,
+ 			strokeColor: 'black',
+ 			strokeWeight: 3,
+ 			zIndex: 2
+ 			});
+		});
+
+		map.data.addListener('mouseout', function(event) {
+			map.data.revertStyle();
+		});
+
+		var $legendContainer = $('#legend-container'),
+				$legend = $('<div id="legend">').appendTo($legendContainer),
+				renderLegend = function(colorValuesArray){
+					$legend.empty();
+		        	$.each(colorValuesArray,function(index, val){
+			        	var $div = $('<div style="height:25px;">').append($('<div class="legend-color-box">').css({
+				       		backgroundColor:val,
+				        })).append($("<span>").css("lineHeight","23px").html(getWater(index)));
+
+				        $legend.append($div);
+			        });
+				}
+		renderLegend(colorValues);
+
+		map.controls[google.maps.ControlPosition.TOP_RIGHT].push($legendContainer[0]);
+
+}
+
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1DQdlTI8pJGpyl0-e5qtCmq56J3wPZMI&callback=initMap">
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <div id="legend-container"><h4>Waterconsumption</h4></div>
+  </body>
+</html>
